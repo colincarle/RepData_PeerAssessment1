@@ -1,4 +1,6 @@
 # Reproducible Research: Peer Assessment 1
+Foonbar Ulysses Carle  
+16 August 2015  
 
 
 ## Loading and preprocessing the data
@@ -16,9 +18,9 @@
     temp.f <- "./repdata-data-activity.zip"
     if (!file.exists(temp.f))
     {
-    fileURL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
-    download.file(fileURL, destfile = temp.f, method = "curl")
-    rm(fileURL)
+        fileURL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+        download.file(fileURL, destfile = temp.f, method = "curl")
+        rm(fileURL)
     }
     ```
 * Use unzip to parse the contents of the archive, and create an index of the results. Using `unz` and `read.csv`, open a connection to the archive, and read the contents of the file into a new dataframe:
@@ -35,29 +37,28 @@
     
     ```r
     activity$date <- as.POSIXct(strptime(activity$date, format = "%Y-%m-%d"))
-    molten <- melt(activity, id = c("date", "interval"), measure = "steps",
-               variable.name = "steps")
+    molten <- melt(activity, id = c("date", "interval"), measure = "steps", variable.name = "steps")
     ```
 * The data should now be in a format that is suitable for further analysis
 
 
-## What is mean total number of steps taken per day?
+## What is the mean total number of steps taken per day?
 
 * The molten data is cast with the aggregating function `sum` and a histogram is generated.
     
     ```r
     dailySteps  <- dcast(molten, date ~ steps, sum, na.rm = TRUE)
     h1 <- ggplot(dailySteps, aes(x = steps)) +
-    geom_histogram(binwidth = 1200, color = "dodgerblue", fill = "dodgerblue4") +
-    geom_vline(aes(xintercept = mean(steps)),
-               linetype = "solid", color = "#990033", size = 1) +
-    geom_vline(aes(xintercept = median(steps)),
-               linetype = "dashed", color = "#990033", size = 1) +
-    ggtitle("Frequency Distribution of Daily Step Counts") +
-    ylab("Frequency") + xlab("Daily Step Total") +
-    theme(plot.title = element_text(size = 16, face = "bold", vjust = 0.75),
-          axis.title.y = element_text(size = 10, vjust = 0.35),
-          axis.title.x = element_text(size = 10))
+        geom_histogram(binwidth = 1200, color = "dodgerblue", fill = "dodgerblue4") +
+        geom_vline(aes(xintercept = mean(steps)),
+                   linetype = "solid", color = "#990033", size = 1) +
+        geom_vline(aes(xintercept = median(steps)),
+                   linetype = "dashed", color = "#990033", size = 1) +
+        ggtitle("Frequency Distribution of Daily Step Counts") +
+        ylab("Frequency") + xlab("Daily Step Total") +
+        theme(plot.title = element_text(size = 16, face = "bold", vjust = 0.75),
+              axis.title.y = element_text(size = 10, vjust = 0.35),
+              axis.title.x = element_text(size = 10))
     print(h1)
     ```
     
@@ -74,14 +75,14 @@
     ```r
     activityPattern <- dcast(molten, interval ~ steps, mean, na.rm = TRUE)
     g1 <- ggplot(activityPattern, aes(x = interval, y = steps)) +
-    geom_line(color = "dodgerblue4") + 
-    geom_vline(aes(xintercept = activityPattern[which.max(steps), 1]),
-               linetype = "dashed", color = "#990033", size = 1) +
-    ggtitle("Average Daily Activity Pattern") +
-    ylab("Average Number of Steps Taken") + xlab("5 Minute Interval") +
-    theme(plot.title = element_text(size = 16, face = "bold", vjust = 0.75),
-          axis.title.y = element_text(size = 12, vjust = 0.35),
-          axis.title.x = element_text(size = 12))
+        geom_line(color = "dodgerblue4") + 
+        geom_vline(aes(xintercept = activityPattern[which.max(steps), 1]),
+                   linetype = "dashed", color = "#990033", size = 1) +
+        ggtitle("Average Daily Activity Pattern") +
+        ylab("Average Number of Steps Taken") + xlab("5 Minute Interval") +
+        theme(plot.title = element_text(size = 16, face = "bold", vjust = 0.75),
+              axis.title.y = element_text(size = 12, vjust = 0.35),
+              axis.title.x = element_text(size = 12))
     print(g1)
     ```
     
@@ -95,23 +96,23 @@
     
     ```r
     moltenI <- molten %>% group_by(interval) %>%
-    mutate(value = ifelse(is.na(value), mean(value, na.rm = TRUE), value))
+        mutate(value = ifelse(is.na(value), mean(value, na.rm = TRUE), value))
     ```
 * The imputed data is recast and a new histogram is generated.
     
     ```r
     dailyStepsI  <- dcast(moltenI, date ~ steps, sum, na.rm = TRUE)
     hI <- ggplot(dailyStepsI, aes(x = steps)) +
-    geom_histogram(binwidth = 1500, color = "dodgerblue", fill = "dodgerblue4") +
-    geom_vline(aes(xintercept = mean(steps)),
-               linetype = "solid", color = "#990033", size = 1) +
-    geom_vline(aes(xintercept = median(steps)),
-               linetype = "dashed", color = "black", size = 1) +
-    ggtitle("Frequency Distribution of Daily Step Counts (Imputed Data)") +
-    ylab("Frequency") + xlab("Daily Step Total") +
-    theme(plot.title = element_text(size = 16, face = "bold", vjust = 0.75),
-          axis.title.y = element_text(size = 12, vjust = 0.35),
-          axis.title.x = element_text(size = 12))
+        geom_histogram(binwidth = 1500, color = "dodgerblue", fill = "dodgerblue4") +
+        geom_vline(aes(xintercept = mean(steps)),
+                   linetype = "solid", color = "#990033", size = 1) +
+        geom_vline(aes(xintercept = median(steps)),
+                   linetype = "dashed", color = "black", size = 1) +
+        ggtitle("Frequency Distribution of Daily Step Counts (Imputed Data)") +
+        ylab("Frequency") + xlab("Daily Step Total") +
+        theme(plot.title = element_text(size = 16, face = "bold", vjust = 0.75),
+              axis.title.y = element_text(size = 12, vjust = 0.35),
+              axis.title.x = element_text(size = 12))
     print(hI)
     ```
     
@@ -135,13 +136,13 @@
     ```r
     activityPatternIWD <- dcast(moltenIWD, interval + weekday ~ steps, mean, na.rm = TRUE)
     g2 <- ggplot(activityPatternIWD, aes(x = interval, y = steps)) +
-    geom_line(color = "dodgerblue4") + 
-    ggtitle("Average Daily Activity Pattern (Imputed Data)") +
-    ylab("Average Number of Steps Taken") + xlab("5 Minute Interval") +
-    theme(plot.title = element_text(size = 16, face = "bold", vjust = 0.75),
-          axis.title.y = element_text(size = 12, vjust = 0.35),
-          axis.title.x = element_text(size = 12))+
-    facet_wrap(~weekday, nrow = 2)
+        geom_line(color = "dodgerblue4") + 
+        ggtitle("Average Daily Activity Pattern (Imputed Data)") +
+        ylab("Average Number of Steps Taken") + xlab("5 Minute Interval") +
+        theme(plot.title = element_text(size = 16, face = "bold", vjust = 0.75),
+              axis.title.y = element_text(size = 12, vjust = 0.35),
+              axis.title.x = element_text(size = 12))+
+        facet_wrap(~weekday, nrow = 2)
     print(g2)
     ```
     
