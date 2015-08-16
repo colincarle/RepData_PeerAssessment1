@@ -1,5 +1,5 @@
 # Reproducible Research: Peer Assessment 1
-Foonbar Ulysses Carle  
+Colin Carle  
 16 August 2015  
 
 
