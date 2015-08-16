@@ -20,42 +20,48 @@ molten <- melt(activity, id = c("date", "interval"), variable.name = "steps")
 ## What is mean total number of steps taken per day?
 ##
 dailySteps  <- dcast(molten, date ~ steps, sum, na.rm = TRUE)
-hist(dailySteps$steps, breaks = 10)
 meanSteps   <- mean(dailySteps$steps)
 medianSteps <- median(dailySteps$steps)
+h1 <- ggplot(dailySteps, aes(x = steps)) +
+    geom_histogram(binwidth = 1200, color = "dodgerblue", fill = "dodgerblue4") +
+    geom_vline(aes(xintercept = meanSteps),
+               linetype = "solid", color = "#990033", size = 1) +
+    geom_vline(aes(xintercept = medianSteps),
+               linetype = "dashed", color = "#990033", size = 1)
 
 ##
 ## What is the average daily activity pattern?
 ##
 activityPattern <- dcast(molten, interval ~ steps, mean, na.rm = TRUE)
 g1 <- ggplot(activityPattern, aes(x = interval, y = steps)) + geom_line()
-print(g1)
 maxInterval <- activityPattern[which.max(activityPattern$steps), 1]
 
 ##
 ## Impute the missing values.
 ##
-wideImputed <- dcast(molten, date ~ interval)
-for (i in 2:ncol(wideImputed))
-{
-    wideImputed[is.na(wideImputed[, i]), i] <- mean(wideImputed[, i],
-                                                      na.rm = TRUE)
-}
-imputedDailySums   <- rowSums(wideImputed[2:289])
-hist(imputedDailySums, breaks = 10)
-imputedMeanSteps   <- mean(imputedDailySums)
-imputedMedianSteps <- median(imputedDailySums)
+moltenI <- molten %>% group_by(interval) %>%
+    mutate(value = ifelse(is.na(value), mean(value, na.rm = TRUE), value))
+dailyStepsI  <- dcast(moltenI, date ~ steps, sum, na.rm = TRUE)
+meanStepsI   <- mean(dailyStepsI$steps)
+medianStepsI <- median(dailyStepsI$steps)
+hI <- ggplot(dailyStepsI, aes(x = steps)) +
+    geom_histogram(binwidth = 1200, color = "dodgerblue", fill = "dodgerblue4") +
+    geom_vline(aes(xintercept = meanStepsI),
+               linetype = "solid", color = "#990033", size = 1) +
+    geom_vline(aes(xintercept = medianStepsI),
+               linetype = "dashed", color = "#990033", size = 1)
+meanStepsI   <- mean(dailyStepsI$steps)
+medianStepsI <- median(dailyStepsI$steps)
+
 ##
 ## Are there differences in activity patterns between weekdays and weekends?
 ##
-moltenImputed <- melt(wideImputed, id = "date")
-colnames(moltenImputed) = c("date", "interval", "steps")
-moltenImputed <- melt(moltenImputed, id = c("date", "interval"),
-                      variable.name = "steps")
-moltenImputed <- mutate(moltenImputed,
-                        weekday = ifelse(weekdays(date) == "Saturday" |
+moltenIWD <- moltenI %>% mutate(weekday = ifelse(weekdays(date) == "Saturday" |
                                              weekdays(date) == "Sunday",
                                          "weekend", "weekday"))
-activityPatternImputed <- dcast(moltenImputed, weekday + interval ~ steps, mean)
-g2 <- ggplot(activityPatternImputed, aes(x = interval, y = steps)) +
-    geom_line() +
+activityPatternIWD <- dcast(moltenIWD, interval + weekday ~ steps, mean, na.rm = TRUE)
+g2 <- ggplot(activityPatternIWD, aes(x = interval, y = steps)) + geom_line() +
+    facet_wrap(~weekday, nrow = 2)
+
+
+
